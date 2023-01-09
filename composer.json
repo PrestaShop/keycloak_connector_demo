@@ -1,0 +1,17 @@
+{
+    "name": "atomiix/keycloak_connector_demo",
+    "author": "PrestaShop",
+    "license": "AFL-3.0",
+    "autoload": {
+        "psr-4": {
+            "PrestaShop\\KeycloakConnectorDemo\\": "src/"
+        },
+        "config": {
+            "prepend-autoloader": false
+        }
+    },
+    "require-dev": {
+        "prestashop/php-dev-tools": "^4.3",
+        "phpstan/phpstan": "^1.9"
+    }
+}

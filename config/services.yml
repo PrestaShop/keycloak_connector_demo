@@ -1,0 +1,57 @@
+services:
+  PrestaShop\KeycloakConnectorDemo\Form\ConfigurationType:
+    class: PrestaShop\KeycloakConnectorDemo\Form\ConfigurationType
+    parent: 'form.type.translatable.aware'
+    public: true
+    tags:
+      - { name: form.type }
+
+  prestashop.module.keycloak_connector_demo.php_encrypt:
+    class: PhpEncryption
+    arguments:
+      - !php/const _NEW_COOKIE_KEY_
+
+  prestashop.module.keycloak_connector_demo.client:
+    class: GuzzleHttp\Client
+
+  PrestaShop\KeycloakConnectorDemo\RequestBuilder:
+    class: PrestaShop\KeycloakConnectorDemo\RequestBuilder
+    arguments:
+      - '@prestashop.adapter.legacy.configuration'
+      - '@prestashop.module.keycloak_connector_demo.php_encrypt'
+
+  PrestaShop\KeycloakConnectorDemo\Form\ConfigurationDataConfiguration:
+    class: PrestaShop\KeycloakConnectorDemo\Form\ConfigurationDataConfiguration
+    arguments:
+      - '@prestashop.adapter.legacy.configuration'
+      - '@prestashop.module.keycloak_connector_demo.php_encrypt'
+      - '@PrestaShop\KeycloakConnectorDemo\RequestBuilder'
+      - '@prestashop.module.keycloak_connector_demo.client'
+
+  PrestaShop\KeycloakConnectorDemo\Form\ConfigurationDataProvider:
+    class: PrestaShop\KeycloakConnectorDemo\Form\ConfigurationDataProvider
+    arguments:
+      - '@PrestaShop\KeycloakConnectorDemo\Form\ConfigurationDataConfiguration'
+
+  prestashop.module.keycloak_connector_demo.form.configuration_data_handler:
+    class: 'PrestaShop\PrestaShop\Core\Form\Handler'
+    public: true
+    arguments:
+      - '@form.factory'
+      - '@prestashop.core.hook.dispatcher'
+      - '@PrestaShop\KeycloakConnectorDemo\Form\ConfigurationDataProvider'
+      - 'PrestaShop\KeycloakConnectorDemo\Form\ConfigurationType'
+      - 'KeycloakConfiguration'
+
+  PrestaShop\KeycloakConnectorDemo\Controller\ConfigurationController:
+    class: PrestaShop\KeycloakConnectorDemo\Controller\ConfigurationController
+
+  PrestaShop\KeycloakConnectorDemo\OAuth2\KeyCloakResourceServer:
+    class: PrestaShop\KeycloakConnectorDemo\OAuth2\KeyCloakResourceServer
+    arguments:
+      - '@prestashop.module.keycloak_connector_demo.client'
+      - '@prestashop.adapter.legacy.configuration'
+      - '@prestashop.module.keycloak_connector_demo.php_encrypt'
+      - '@PrestaShop\KeycloakConnectorDemo\RequestBuilder'
+
+  PrestaShop\PrestaShop\Core\OAuth2\OAuth2Interface: '@PrestaShop\KeycloakConnectorDemo\OAuth2\KeyCloakResourceServer'

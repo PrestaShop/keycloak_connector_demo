@@ -1,0 +1,5 @@
+keycloak_connector_configuration:
+  path: /keycloak_connector/configuration
+  methods: [GET,POST]
+  defaults:
+    _controller: 'PrestaShop\KeycloakConnectorDemo\Controller\ConfigurationController::indexAction'

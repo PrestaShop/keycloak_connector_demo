@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+    <name>keycloak_connector_demo</name>
+    <displayName><![CDATA[Keycloak OAuth2 connector demo]]></displayName>
+    <version><![CDATA[1.0.1]]></version>
+    <description><![CDATA[Demo module of how to use Keycloak as OAuth2 Authentication Server for the new API]]></description>
+    <author><![CDATA[PrestaShop]]></author>
+    <tab><![CDATA[]]></tab>
+    <is_configurable>1</is_configurable>
+    <need_instance>0</need_instance>
+</module>
