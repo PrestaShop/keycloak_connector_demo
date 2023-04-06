@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e6fb95607b7975cd1e4e3a575ba1e69f",
+    "content-hash": "8a5cb283c2ef24a992747f7ed9cfbd8d",
     "packages": [],
     "packages-dev": [
         {
@@ -622,16 +622,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "1.9.8",
+            "version": "1.10.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "45411d15bf85a33b4a8ee9b75a6e82998c9adb97"
+                "reference": "8aa62e6ea8b58ffb650e02940e55a788cbc3fe21"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/45411d15bf85a33b4a8ee9b75a6e82998c9adb97",
-                "reference": "45411d15bf85a33b4a8ee9b75a6e82998c9adb97",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/8aa62e6ea8b58ffb650e02940e55a788cbc3fe21",
+                "reference": "8aa62e6ea8b58ffb650e02940e55a788cbc3fe21",
                 "shasum": ""
             },
             "require": {
@@ -660,8 +660,11 @@
                 "static analysis"
             ],
             "support": {
+                "docs": "https://phpstan.org/user-guide/getting-started",
+                "forum": "https://github.com/phpstan/phpstan/discussions",
                 "issues": "https://github.com/phpstan/phpstan/issues",
-                "source": "https://github.com/phpstan/phpstan/tree/1.9.8"
+                "security": "https://github.com/phpstan/phpstan/security/policy",
+                "source": "https://github.com/phpstan/phpstan-src"
             },
             "funding": [
                 {
@@ -677,7 +680,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-01-08T21:26:18+00:00"
+            "time": "2023-04-04T19:17:42+00:00"
         },
         {
             "name": "prestashop/autoindex",
