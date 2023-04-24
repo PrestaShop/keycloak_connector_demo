@@ -34,7 +34,7 @@ class Keycloak_connector_demo extends \Module
     {
         $this->name = 'keycloak_connector_demo';
         $this->displayName = 'Keycloak OAuth2 connector demo';
-        $this->version = '1.0.1';
+        $this->version = '1.0.2';
         $this->author = 'PrestaShop';
         $this->description = 'Demo module of how to use Keycloak as OAuth2 Authentication Server for the new API';
         $this->need_instance = 0;
