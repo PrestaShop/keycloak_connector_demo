@@ -39,7 +39,7 @@ class ConfigurationController extends FrameworkBundleAdminController
         if ($configurationForm->isSubmitted() && $configurationForm->isValid()) {
             $errors = $configurationDataHandler->save((array) $configurationForm->getData());
             if (empty($errors)) {
-                $this->addFlash('success', $this->trans('Successful update.', 'Admin.Notifications.Success'));
+                $this->addFlash('success', $this->trans('Successful update', 'Admin.Notifications.Success'));
 
                 return $this->redirectToRoute('keycloak_connector_configuration');
             }

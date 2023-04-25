@@ -68,9 +68,12 @@ final class ConfigurationDataConfiguration implements DataConfigurationInterface
      */
     public function getConfiguration(): array
     {
-        $endpoint = $this->encryption->decrypt($this->configuration->get(static::REALM_ENDPOINT));
-        if (!is_string($endpoint)) {
-            throw new RuntimeException('Unable to decrypt realm endpoint configuration');
+        $endpoint = (string) $this->configuration->get(static::REALM_ENDPOINT);
+        if (!empty($endpoint)) {
+            $endpoint = $this->encryption->decrypt($endpoint);
+            if (!is_string($endpoint)) {
+                throw new RuntimeException('Unable to decrypt realm endpoint configuration');
+            }
         }
 
         return [
