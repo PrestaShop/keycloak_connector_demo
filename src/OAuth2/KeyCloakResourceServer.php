@@ -172,7 +172,7 @@ class KeyCloakResourceServer implements ResourceServerInterface
         if ($token === null) {
             return null;
         }
-        $audience = $token->claims()->get('clientId');
+        $audience = $token->claims()->get('client_id');
         if (!is_string($audience)) {
             return null;
         }
