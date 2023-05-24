@@ -177,7 +177,7 @@ class KeyCloakResourceServer implements ResourceServerInterface
             return null;
         }
 
-        return new KeyCloakUser($audience);
+        return new KeyCloakUser($audience, explode(' ', $token->claims()->get('scope')));
     }
 
     private function getTokenFromRequest(ServerRequestInterface $request): ?Token

@@ -26,19 +26,13 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class KeyCloakUser implements UserInterface
 {
-    /**
-     * @var string
-     */
-    private $username;
-
-    public function __construct(string $username)
+    public function __construct(private string $username, private string $scopes)
     {
-        $this->username = $username;
     }
 
     public function getRoles(): array
     {
-        return [];
+        return $this->scopes;
     }
 
     public function getPassword(): ?string
