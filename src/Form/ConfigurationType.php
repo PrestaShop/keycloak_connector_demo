@@ -20,7 +20,7 @@
 
 declare(strict_types=1);
 
-namespace PrestaShop\KeycloakConnectorDemo\Form;
+namespace PrestaShop\Module\KeycloakConnectorDemo\Form;
 
 use PrestaShopBundle\Form\Admin\Type\TranslatorAwareType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;

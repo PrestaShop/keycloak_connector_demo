@@ -20,7 +20,7 @@
 
 declare(strict_types=1);
 
-namespace PrestaShop\KeycloakConnectorDemo\OAuth2;
+namespace PrestaShop\Module\KeycloakConnectorDemo\OAuth2;
 
 use Symfony\Component\Security\Core\User\UserInterface;
 

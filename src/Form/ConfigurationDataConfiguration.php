@@ -20,10 +20,10 @@
 
 declare(strict_types=1);
 
-namespace PrestaShop\KeycloakConnectorDemo\Form;
+namespace PrestaShop\Module\KeycloakConnectorDemo\Form;
 
 use PhpEncryption;
-use PrestaShop\KeycloakConnectorDemo\RequestBuilder;
+use PrestaShop\Module\KeycloakConnectorDemo\RequestBuilder;
 use PrestaShop\PrestaShop\Core\Configuration\DataConfigurationInterface;
 use PrestaShop\PrestaShop\Core\ConfigurationInterface;
 use Psr\Http\Client\ClientExceptionInterface;

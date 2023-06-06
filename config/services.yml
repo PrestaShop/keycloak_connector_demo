@@ -1,6 +1,6 @@
 services:
-  PrestaShop\KeycloakConnectorDemo\Form\ConfigurationType:
-    class: PrestaShop\KeycloakConnectorDemo\Form\ConfigurationType
+  PrestaShop\Module\KeycloakConnectorDemo\Form\ConfigurationType:
+    class: PrestaShop\Module\KeycloakConnectorDemo\Form\ConfigurationType
     parent: 'form.type.translatable.aware'
     public: true
     tags:
@@ -14,24 +14,24 @@ services:
   prestashop.module.keycloak_connector_demo.client:
     class: GuzzleHttp\Client
 
-  PrestaShop\KeycloakConnectorDemo\RequestBuilder:
-    class: PrestaShop\KeycloakConnectorDemo\RequestBuilder
+  PrestaShop\Module\KeycloakConnectorDemo\RequestBuilder:
+    class: PrestaShop\Module\KeycloakConnectorDemo\RequestBuilder
     arguments:
       - '@prestashop.adapter.legacy.configuration'
       - '@prestashop.module.keycloak_connector_demo.php_encrypt'
 
-  PrestaShop\KeycloakConnectorDemo\Form\ConfigurationDataConfiguration:
-    class: PrestaShop\KeycloakConnectorDemo\Form\ConfigurationDataConfiguration
+  PrestaShop\Module\KeycloakConnectorDemo\Form\ConfigurationDataConfiguration:
+    class: PrestaShop\Module\KeycloakConnectorDemo\Form\ConfigurationDataConfiguration
     arguments:
       - '@prestashop.adapter.legacy.configuration'
       - '@prestashop.module.keycloak_connector_demo.php_encrypt'
-      - '@PrestaShop\KeycloakConnectorDemo\RequestBuilder'
+      - '@PrestaShop\Module\KeycloakConnectorDemo\RequestBuilder'
       - '@prestashop.module.keycloak_connector_demo.client'
 
-  PrestaShop\KeycloakConnectorDemo\Form\ConfigurationDataProvider:
-    class: PrestaShop\KeycloakConnectorDemo\Form\ConfigurationDataProvider
+  PrestaShop\Module\KeycloakConnectorDemo\Form\ConfigurationDataProvider:
+    class: PrestaShop\Module\KeycloakConnectorDemo\Form\ConfigurationDataProvider
     arguments:
-      - '@PrestaShop\KeycloakConnectorDemo\Form\ConfigurationDataConfiguration'
+      - '@PrestaShop\Module\KeycloakConnectorDemo\Form\ConfigurationDataConfiguration'
 
   prestashop.module.keycloak_connector_demo.form.configuration_data_handler:
     class: 'PrestaShop\PrestaShop\Core\Form\Handler'
@@ -39,19 +39,20 @@ services:
     arguments:
       - '@form.factory'
       - '@prestashop.core.hook.dispatcher'
-      - '@PrestaShop\KeycloakConnectorDemo\Form\ConfigurationDataProvider'
-      - 'PrestaShop\KeycloakConnectorDemo\Form\ConfigurationType'
+      - '@PrestaShop\Module\KeycloakConnectorDemo\Form\ConfigurationDataProvider'
+      - 'PrestaShop\Module\KeycloakConnectorDemo\Form\ConfigurationType'
       - 'KeycloakConfiguration'
 
-  PrestaShop\KeycloakConnectorDemo\Controller\ConfigurationController:
-    class: PrestaShop\KeycloakConnectorDemo\Controller\ConfigurationController
+  PrestaShop\Module\KeycloakConnectorDemo\Controller\ConfigurationController:
+    public: true
+    autowire: true
 
-  PrestaShop\KeycloakConnectorDemo\OAuth2\KeyCloakResourceServer:
-    class: PrestaShop\KeycloakConnectorDemo\OAuth2\KeyCloakResourceServer
+  PrestaShop\Module\KeycloakConnectorDemo\OAuth2\KeyCloakResourceServer:
+    class: PrestaShop\Module\KeycloakConnectorDemo\OAuth2\KeyCloakResourceServer
     arguments:
       - '@prestashop.module.keycloak_connector_demo.client'
       - '@prestashop.adapter.legacy.configuration'
       - '@prestashop.module.keycloak_connector_demo.php_encrypt'
-      - '@PrestaShop\KeycloakConnectorDemo\RequestBuilder'
+      - '@PrestaShop\Module\KeycloakConnectorDemo\RequestBuilder'
 
-  PrestaShop\PrestaShop\Core\OAuth2\OAuth2Interface: '@PrestaShop\KeycloakConnectorDemo\OAuth2\KeyCloakResourceServer'
+  PrestaShop\PrestaShop\Core\OAuth2\OAuth2Interface: '@PrestaShop\Module\KeycloakConnectorDemo\OAuth2\KeyCloakResourceServer'

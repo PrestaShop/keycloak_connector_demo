@@ -20,7 +20,7 @@
 
 declare(strict_types=1);
 
-namespace PrestaShop\KeycloakConnectorDemo\OAuth2;
+namespace PrestaShop\Module\KeycloakConnectorDemo\OAuth2;
 
 use Lcobucci\Clock\SystemClock;
 use Lcobucci\JWT\Parser;
@@ -33,8 +33,8 @@ use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Lcobucci\JWT\Validation\Constraint\ValidAt;
 use Lcobucci\JWT\Validation\Validator;
 use PhpEncryption;
-use PrestaShop\KeycloakConnectorDemo\Form\ConfigurationDataConfiguration;
-use PrestaShop\KeycloakConnectorDemo\RequestBuilder;
+use PrestaShop\Module\KeycloakConnectorDemo\Form\ConfigurationDataConfiguration;
+use PrestaShop\Module\KeycloakConnectorDemo\RequestBuilder;
 use PrestaShop\PrestaShop\Core\ConfigurationInterface;
 use PrestaShop\PrestaShop\Core\Security\OAuth2\ResourceServerInterface;
 use Psr\Http\Client\ClientExceptionInterface;

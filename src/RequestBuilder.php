@@ -20,7 +20,7 @@
 
 declare(strict_types=1);
 
-namespace PrestaShop\KeycloakConnectorDemo;
+namespace PrestaShop\Module\KeycloakConnectorDemo;
 
 use GuzzleHttp\Psr7\Request;
 use Psr\Http\Message\RequestInterface;
