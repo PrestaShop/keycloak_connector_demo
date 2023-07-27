@@ -20,21 +20,22 @@
 
 declare(strict_types=1);
 
-namespace PrestaShop\KeycloakConnectorDemo\OAuth2;
+namespace PrestaShop\Module\KeycloakConnectorDemo\OAuth2;
 
 use Lcobucci\Clock\SystemClock;
-use Lcobucci\JWT\Parser;
+use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
 use Lcobucci\JWT\Token;
-use Lcobucci\JWT\Validation\Constraint;
+use Lcobucci\JWT\Token\Parser;
+use Lcobucci\JWT\UnencryptedToken;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
-use Lcobucci\JWT\Validation\Constraint\ValidAt;
+use Lcobucci\JWT\Validation\Constraint\StrictValidAt;
 use Lcobucci\JWT\Validation\Validator;
 use PhpEncryption;
-use PrestaShop\KeycloakConnectorDemo\Form\ConfigurationDataConfiguration;
-use PrestaShop\KeycloakConnectorDemo\RequestBuilder;
+use PrestaShop\Module\KeycloakConnectorDemo\Form\ConfigurationDataConfiguration;
+use PrestaShop\Module\KeycloakConnectorDemo\RequestBuilder;
 use PrestaShop\PrestaShop\Core\ConfigurationInterface;
 use PrestaShop\PrestaShop\Core\Security\OAuth2\ResourceServerInterface;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -156,23 +157,24 @@ class KeyCloakResourceServer implements ResourceServerInterface
     /**
      * @param Key $key
      *
-     * @return Constraint[]
+     * @return array{SignedWith, StrictValidAt}
      */
     private function getValidationConstraints(Key $key): array
     {
         return [
             new SignedWith(new Sha256(), $key),
-            new ValidAt(SystemClock::fromUTC()),
+            new StrictValidAt(SystemClock::fromUTC()),
         ];
     }
 
     public function getUser(ServerRequestInterface $request): ?UserInterface
     {
+        /** @var UnencryptedToken|null $token */
         $token = $this->getTokenFromRequest($request);
         if ($token === null) {
             return null;
         }
-        $audience = $token->claims()->get('clientId');
+        $audience = $token->claims()->get('clientId') ?? $token->claims()->get('client_id');
         if (!is_string($audience)) {
             return null;
         }
@@ -183,10 +185,10 @@ class KeyCloakResourceServer implements ResourceServerInterface
     private function getTokenFromRequest(ServerRequestInterface $request): ?Token
     {
         $authorization = $request->getHeader('Authorization')[0] ?? null;
-        if ($authorization === null || strpos($authorization, 'Bearer ') !== 0) {
+        if ($authorization === null || strpos($authorization, 'Bearer ') !== 0 || empty(explode(' ', $authorization)[1])) {
             return null;
         }
 
-        return (new Parser())->parse(explode(' ', $authorization)[1]);
+        return (new Parser(new JoseEncoder()))->parse(explode(' ', $authorization)[1]);
     }
 }

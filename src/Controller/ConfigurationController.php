@@ -20,7 +20,7 @@
 
 declare(strict_types=1);
 
-namespace PrestaShop\KeycloakConnectorDemo\Controller;
+namespace PrestaShop\Module\KeycloakConnectorDemo\Controller;
 
 use PrestaShop\PrestaShop\Core\Form\FormHandlerInterface;
 use PrestaShopBundle\Controller\Admin\FrameworkBundleAdminController;

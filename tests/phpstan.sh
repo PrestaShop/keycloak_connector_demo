@@ -26,6 +26,6 @@ echo "Run PHPStan using phpstan-${PS_VERSION}.neon file"
 docker run --rm --volumes-from temp-ps \
        -v $PWD:/var/www/html/modules/keycloak_connector_demo \
        -e _PS_ROOT_DIR_=/var/www/html \
-       --workdir=/var/www/html/modules/keycloak_connector_demo ghcr.io/phpstan/phpstan:1.9.8 \
+       --workdir=/var/www/html/modules/keycloak_connector_demo ghcr.io/phpstan/phpstan:1-php8.1 \
        analyse \
        --configuration=/var/www/html/modules/keycloak_connector_demo/tests/phpstan/phpstan-${PS_VERSION}.neon

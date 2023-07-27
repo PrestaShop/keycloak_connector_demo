@@ -30,7 +30,7 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
 
 class Keycloak_connector_demo extends \Module
 {
-    public function __construct($name = null, Context $context = null)
+    public function __construct()
     {
         $this->name = 'keycloak_connector_demo';
         $this->displayName = 'Keycloak OAuth2 connector demo';
@@ -40,7 +40,7 @@ class Keycloak_connector_demo extends \Module
         $this->need_instance = 0;
         $this->bootstrap = true;
         $this->ps_versions_compliancy = ['min' => '8.0.0', 'max' => _PS_VERSION_];
-        parent::__construct($name, $context);
+        parent::__construct();
     }
 
     public function getContent(): void
