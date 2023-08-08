@@ -56,6 +56,11 @@ class KeyCloakUser implements UserInterface
         return $this->username;
     }
 
+    public function getUserIdentifier(): string
+    {
+        return $this->username;
+    }
+
     public function eraseCredentials(): void
     {
     }
