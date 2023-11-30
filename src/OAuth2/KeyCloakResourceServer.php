@@ -37,7 +37,7 @@ use PhpEncryption;
 use PrestaShop\Module\KeycloakConnectorDemo\Form\ConfigurationDataConfiguration;
 use PrestaShop\Module\KeycloakConnectorDemo\RequestBuilder;
 use PrestaShop\PrestaShop\Core\ConfigurationInterface;
-use PrestaShop\PrestaShop\Core\Security\OAuth2\ResourceServerInterface;
+use PrestaShop\PrestaShop\Core\Security\OAuth2\AuthorisationServerInterface;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
@@ -45,7 +45,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class KeyCloakResourceServer implements ResourceServerInterface
+class KeyCloakResourceServer implements AuthorisationServerInterface
 {
     /**
      * @var ClientInterface
