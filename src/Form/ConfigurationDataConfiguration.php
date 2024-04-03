@@ -28,7 +28,6 @@ use PrestaShop\PrestaShop\Core\Configuration\DataConfigurationInterface;
 use PrestaShop\PrestaShop\Core\ConfigurationInterface;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
-use RuntimeException;
 
 final class ConfigurationDataConfiguration implements DataConfigurationInterface
 {
@@ -72,7 +71,7 @@ final class ConfigurationDataConfiguration implements DataConfigurationInterface
         if (!empty($endpoint)) {
             $endpoint = $this->encryption->decrypt($endpoint);
             if (!is_string($endpoint)) {
-                throw new RuntimeException('Unable to decrypt realm endpoint configuration');
+                $endpoint = '';
             }
         }
 

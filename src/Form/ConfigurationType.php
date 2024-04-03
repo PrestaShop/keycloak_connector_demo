@@ -32,7 +32,7 @@ class ConfigurationType extends TranslatorAwareType
     {
         $builder->add(ConfigurationDataConfiguration::REALM_ENDPOINT, TextType::class, [
             'label' => $this->trans('Keycloak realm endpoint', 'Modules.Keycloakconnectordemo.Admin'),
-            'help' => $this->trans('i.e. https://my.keycloak.instance.org/realms/master', 'Modules.Keycloakconnectordemo.Admin'),
+            'help' => $this->trans('i.e. http://localhost:8003/realms/prestashop', 'Modules.Keycloakconnectordemo.Admin'),
         ]);
     }
 }

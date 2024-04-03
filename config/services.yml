@@ -47,12 +47,10 @@ services:
     public: true
     autowire: true
 
-  PrestaShop\Module\KeycloakConnectorDemo\OAuth2\KeyCloakResourceServer:
-    class: PrestaShop\Module\KeycloakConnectorDemo\OAuth2\KeyCloakResourceServer
+  PrestaShop\Module\KeycloakConnectorDemo\OAuth2\KeycloakAuthorizationServer:
+    # Autoconfigure to get tag from interface and to be injected in TokenAuthenticator
+    autoconfigure: true
+    autowire: true
     arguments:
-      - '@prestashop.module.keycloak_connector_demo.client'
-      - '@prestashop.adapter.legacy.configuration'
-      - '@prestashop.module.keycloak_connector_demo.php_encrypt'
-      - '@PrestaShop\Module\KeycloakConnectorDemo\RequestBuilder'
-
-  PrestaShop\PrestaShop\Core\OAuth2\OAuth2Interface: '@PrestaShop\Module\KeycloakConnectorDemo\OAuth2\KeyCloakResourceServer'
+      $client: '@prestashop.module.keycloak_connector_demo.client'
+      $phpEncryption: '@prestashop.module.keycloak_connector_demo.php_encrypt'
