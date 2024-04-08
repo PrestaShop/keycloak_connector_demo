@@ -31,7 +31,8 @@ use Psr\Http\Client\ClientInterface;
 
 final class ConfigurationDataConfiguration implements DataConfigurationInterface
 {
-    public const REALM_ENDPOINT = 'KEYCLOAK_ENDPOINT';
+    public const REALM_ENDPOINT = 'KEYCLOAK_REALM_ENDPOINT';
+    public const ALLOWED_ISSUERS = 'KEYCLOAK_ALLOWED_ISSUERS';
 
     /** @var ConfigurationInterface */
     private $configuration;
@@ -75,8 +76,17 @@ final class ConfigurationDataConfiguration implements DataConfigurationInterface
             }
         }
 
+        $allowedIssuers = (string) $this->configuration->get(static::ALLOWED_ISSUERS);
+        if (!empty($allowedIssuers)) {
+            $allowedIssuers = $this->encryption->decrypt($allowedIssuers);
+            if (!is_string($allowedIssuers)) {
+                $allowedIssuers = '';
+            }
+        }
+
         return [
             static::REALM_ENDPOINT => $endpoint,
+            static::ALLOWED_ISSUERS => $allowedIssuers,
         ];
     }
 
@@ -93,6 +103,10 @@ final class ConfigurationDataConfiguration implements DataConfigurationInterface
             $this->configuration->set(
                 static::REALM_ENDPOINT,
                 $this->encryption->encrypt(trim($configuration[static::REALM_ENDPOINT], '/ '))
+            );
+            $this->configuration->set(
+                static::ALLOWED_ISSUERS,
+                $this->encryption->encrypt($configuration[static::ALLOWED_ISSUERS])
             );
         }
 

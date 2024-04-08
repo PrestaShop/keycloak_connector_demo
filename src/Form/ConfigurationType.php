@@ -30,9 +30,15 @@ class ConfigurationType extends TranslatorAwareType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder->add(ConfigurationDataConfiguration::REALM_ENDPOINT, TextType::class, [
-            'label' => $this->trans('Keycloak realm endpoint', 'Modules.Keycloakconnectordemo.Admin'),
-            'help' => $this->trans('i.e. http://localhost:8003/realms/prestashop', 'Modules.Keycloakconnectordemo.Admin'),
-        ]);
+        $builder
+            ->add(ConfigurationDataConfiguration::REALM_ENDPOINT, TextType::class, [
+                'label' => $this->trans('Keycloak realm endpoint', 'Modules.Keycloakconnectordemo.Admin'),
+                'help' => $this->trans('i.e. http://localhost:8003/realms/prestashop', 'Modules.Keycloakconnectordemo.Admin'),
+            ])
+            ->add(ConfigurationDataConfiguration::ALLOWED_ISSUERS, TextType::class, [
+                'label' => $this->trans('Keycloak allowed issuers', 'Modules.Keycloakconnectordemo.Admin'),
+                'help' => $this->trans('You can define multiple allowed issuers, convenient when working with internal docker urls for validation and external URL to fetch the access token. The values are separated by space, i.e. http://localhost:8003/realms/prestashop http://keycloak:8080/realms/prestashop', 'Modules.Keycloakconnectordemo.Admin'),
+            ])
+        ;
     }
 }

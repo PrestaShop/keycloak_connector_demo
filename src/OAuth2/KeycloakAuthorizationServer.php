@@ -51,6 +51,8 @@ class KeycloakAuthorizationServer implements AuthorisationServerInterface
 
     private ?string $certificatesUrl = null;
 
+    private ?array $allowedIssuers = null;
+
     private ?Validator $validator = null;
 
     private array $parsedTokens = [];
@@ -71,17 +73,32 @@ class KeycloakAuthorizationServer implements AuthorisationServerInterface
             return false;
         }
 
-        $certsUrl = $this->getCertificatesUrl();
-        if (empty($certsUrl)) {
-            $this->logger->debug('KeycloakAuthorizationServer: no certs URL detected');
+        $allowedIssuers = $this->getKeycloakAllowedIssuers();
+        if (empty($allowedIssuers)) {
+            $this->logger->debug('KeycloakAuthorizationServer: no allowed issuers defined');
 
             return false;
         }
 
-        if (!$token->hasBeenIssuedBy($certsUrl)) {
-            $this->logger->info('KeycloakAuthorizationServer: invalid issuer got ' . $token->claims()->get(RegisteredClaims::ISSUER) . ' instead of ' . $certsUrl . ' claims ' . $token->claims()->toString());
+        $tokenIssuerAllowed = false;
+        foreach ($allowedIssuers as $allowedIssuer) {
+            if ($token->hasBeenIssuedBy($allowedIssuer)) {
+                $tokenIssuerAllowed = true;
+                break;
+            }
+        }
 
-            //return false;
+        if (!$tokenIssuerAllowed) {
+            $this->logger->debug('KeycloakAuthorizationServer: invalid issuer got ' . $token->claims()->get(RegisteredClaims::ISSUER) . ' instead one of "' . implode(',', $allowedIssuers));
+
+            return false;
+        }
+
+        $certsUrl = $this->getKeycloakRealmUrl();
+        if (empty($certsUrl)) {
+            $this->logger->debug('KeycloakAuthorizationServer: no certs URL detected');
+
+            return false;
         }
 
         $certs = $this->getServerCertificates($certsUrl);
@@ -169,7 +186,7 @@ class KeycloakAuthorizationServer implements AuthorisationServerInterface
         return null;
     }
 
-    private function getCertificatesUrl(): ?string
+    private function getKeycloakRealmUrl(): ?string
     {
         if (!empty($this->certificatesUrl)) {
             return $this->certificatesUrl;
@@ -189,6 +206,28 @@ class KeycloakAuthorizationServer implements AuthorisationServerInterface
         $this->certificatesUrl = $endpoint;
 
         return $this->certificatesUrl;
+    }
+
+    private function getKeycloakAllowedIssuers(): ?array
+    {
+        if (!empty($this->allowedIssuers)) {
+            return $this->allowedIssuers;
+        }
+
+        $encryptedIssuers = $this->configuration->get(ConfigurationDataConfiguration::ALLOWED_ISSUERS);
+        if (empty($encryptedIssuers)) {
+            return null;
+        }
+
+        $issuers = $this->phpEncryption->decrypt($encryptedIssuers);
+        if (!is_string($issuers)) {
+            $this->logger->error('KeycloakAuthorizationServer: could not decrypt issuers ' . $encryptedIssuers);
+
+            return null;
+        }
+        $this->allowedIssuers = explode(' ', $issuers);
+
+        return $this->allowedIssuers;
     }
 
     /**

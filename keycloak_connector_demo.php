@@ -75,7 +75,8 @@ class Keycloak_connector_demo extends \Module
         if (!empty($cookieKey)) {
             $encryption = new PhpEncryption($cookieKey);
 
-            return Configuration::updateValue(ConfigurationDataConfiguration::REALM_ENDPOINT, $encryption->encrypt('http://keycloak:8003/realms/prestashop'));
+            return Configuration::updateValue(ConfigurationDataConfiguration::REALM_ENDPOINT, $encryption->encrypt('http://localhost:8003/realms/prestashop'))
+                && Configuration::updateValue(ConfigurationDataConfiguration::ALLOWED_ISSUERS, $encryption->encrypt('http://localhost:8003/realms/prestashop'));
         }
 
         return true;
