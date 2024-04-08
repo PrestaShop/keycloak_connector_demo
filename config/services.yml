@@ -44,8 +44,8 @@ services:
       - 'KeycloakConfiguration'
 
   PrestaShop\Module\KeycloakConnectorDemo\Controller\ConfigurationController:
-    public: true
     autowire: true
+    autoconfigure: true
 
   PrestaShop\Module\KeycloakConnectorDemo\OAuth2\KeycloakAuthorizationServer:
     # Autoconfigure to get tag from interface and to be injected in TokenAuthenticator

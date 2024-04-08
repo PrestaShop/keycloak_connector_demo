@@ -23,33 +23,35 @@ declare(strict_types=1);
 namespace PrestaShop\Module\KeycloakConnectorDemo\Controller;
 
 use PrestaShop\PrestaShop\Core\Form\FormHandlerInterface;
-use PrestaShopBundle\Controller\Admin\FrameworkBundleAdminController;
+use PrestaShopBundle\Controller\Admin\PrestaShopAdminController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class ConfigurationController extends FrameworkBundleAdminController
+class ConfigurationController extends PrestaShopAdminController
 {
-    public function indexAction(Request $request): Response
-    {
-        /** @var FormHandlerInterface $configurationDataHandler */
-        $configurationDataHandler = $this->get('prestashop.module.keycloak_connector_demo.form.configuration_data_handler');
+    public function indexAction(
+        #[Autowire(service: 'prestashop.module.keycloak_connector_demo.form.configuration_data_handler')]
+        FormHandlerInterface $configurationDataHandler,
+        Request $request
+    ): Response {
         $configurationForm = $configurationDataHandler->getForm();
         $configurationForm->handleRequest($request);
 
         if ($configurationForm->isSubmitted() && $configurationForm->isValid()) {
             $errors = $configurationDataHandler->save((array) $configurationForm->getData());
             if (empty($errors)) {
-                $this->addFlash('success', $this->trans('Successful update', 'Admin.Notifications.Success'));
+                $this->addFlash('success', $this->trans('Successful update', [], 'Admin.Notifications.Success'));
 
                 return $this->redirectToRoute('keycloak_connector_configuration');
             }
 
-            $this->flashErrors($errors);
+            $this->addFlashErrors($errors);
         }
 
         return $this->render('@Modules/keycloak_connector_demo/views/templates/admin/configuration.html.twig', [
             'configurationForm' => $configurationForm->createView(),
-            'layoutTitle' => $this->trans('Keycloak connector', 'Modules.Keycloakconnectordemo.Admin'),
+            'layoutTitle' => $this->trans('Keycloak connector', [], 'Modules.Keycloakconnectordemo.Admin'),
         ]);
     }
 }
