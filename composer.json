@@ -9,6 +9,9 @@
         "email": "contact@prestashop.com"
       }
     ],
+    "require": {
+        "php": ">=8.1"
+    },
     "autoload": {
         "psr-4": {
             "PrestaShop\\Module\\KeycloakConnectorDemo\\": "src/"
