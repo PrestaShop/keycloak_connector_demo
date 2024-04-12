@@ -55,6 +55,9 @@ class Keycloak_connector_demo extends \Module
         Tools::redirectAdmin($router->generate('keycloak_connector_configuration'));
     }
 
+    /**
+     * @return bool
+     */
     public function install()
     {
         if (!parent::install()) {

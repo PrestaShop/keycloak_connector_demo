@@ -26,13 +26,13 @@ use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
-use Lcobucci\JWT\Token as TokenInterface;
 use Lcobucci\JWT\Token\InvalidTokenStructure;
 use Lcobucci\JWT\Token\Parser;
+use Lcobucci\JWT\Token\Plain;
 use Lcobucci\JWT\Token\RegisteredClaims;
 use Lcobucci\JWT\UnencryptedToken;
+use Lcobucci\JWT\Validation\Constraint;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
-use Lcobucci\JWT\Validation\Constraint\StrictValidAt;
 use Lcobucci\JWT\Validation\Validator;
 use PhpEncryption;
 use PrestaShop\Module\KeycloakConnectorDemo\Form\ConfigurationDataConfiguration;
@@ -51,10 +51,16 @@ class KeycloakAuthorizationServer implements AuthorisationServerInterface
 
     private ?string $certificatesUrl = null;
 
+    /**
+     * @var non-empty-string[]|null
+     */
     private ?array $allowedIssuers = null;
 
     private ?Validator $validator = null;
 
+    /**
+     * @var array<string, UnencryptedToken>
+     */
     private array $parsedTokens = [];
 
     public function __construct(
@@ -128,12 +134,17 @@ class KeycloakAuthorizationServer implements AuthorisationServerInterface
         }
 
         $scope = $token->claims()->get('scope');
-        if (empty($scope)) {
+        if (!is_string($scope) || empty($scope)) {
             return null;
         }
         $scopes = explode(' ', $scope);
 
-        return new JwtTokenUser($clientId, $scopes, $token->claims()->get('iss'));
+        $issuer = $token->claims()->get('iss');
+        if (!is_string($issuer) || empty($issuer)) {
+            return null;
+        }
+
+        return new JwtTokenUser($clientId, $scopes, $issuer);
     }
 
     /**
@@ -167,12 +178,12 @@ class KeycloakAuthorizationServer implements AuthorisationServerInterface
     }
 
     /**
-     * @param TokenInterface $token
+     * @param UnencryptedToken $token
      * @param array<array<string, string>> $certs
      *
      * @return Key|null
      */
-    private function getRightCertificate(TokenInterface $token, array $certs): ?Key
+    private function getRightCertificate(UnencryptedToken $token, array $certs): ?Key
     {
         foreach ($certs as $key) {
             if ($key['kid'] === $token->headers()->get('kid')) {
@@ -208,6 +219,9 @@ class KeycloakAuthorizationServer implements AuthorisationServerInterface
         return $this->certificatesUrl;
     }
 
+    /**
+     * @return non-empty-string[]|null
+     */
     private function getKeycloakAllowedIssuers(): ?array
     {
         if (!empty($this->allowedIssuers)) {
@@ -225,7 +239,9 @@ class KeycloakAuthorizationServer implements AuthorisationServerInterface
 
             return null;
         }
-        $this->allowedIssuers = explode(' ', $issuers);
+        /** @var non-empty-string[] $allowedIssuers */
+        $allowedIssuers = explode(' ', $issuers);
+        $this->allowedIssuers = $allowedIssuers;
 
         return $this->allowedIssuers;
     }
@@ -233,7 +249,7 @@ class KeycloakAuthorizationServer implements AuthorisationServerInterface
     /**
      * @param Key $key
      *
-     * @return array{SignedWith, StrictValidAt}
+     * @return Constraint[]
      */
     private function getValidationConstraints(Key $key): array
     {
@@ -242,7 +258,7 @@ class KeycloakAuthorizationServer implements AuthorisationServerInterface
         ];
     }
 
-    private function getTokenFromRequest(Request $request): ?TokenInterface
+    private function getTokenFromRequest(Request $request): ?UnencryptedToken
     {
         $authorization = $request->headers->get('Authorization') ?? null;
         if ($authorization === null || !str_starts_with($authorization, 'Bearer ')) {
@@ -267,6 +283,7 @@ class KeycloakAuthorizationServer implements AuthorisationServerInterface
 
         if (empty($this->parsedTokens[$bearerToken])) {
             try {
+                /** @var Plain $token */
                 $token = $this->getJwtParser()->parse($bearerToken);
             } catch (InvalidTokenStructure $e) {
                 $this->logger->error('KeycloakAuthorizationServer: invalid token structure: ' . $e->getMessage());
