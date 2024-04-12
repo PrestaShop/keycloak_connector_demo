@@ -18,6 +18,7 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
+use PrestaShop\Module\KeycloakConnectorDemo\Form\ConfigurationDataConfiguration;
 use PrestaShop\PrestaShop\Adapter\SymfonyContainer;
 
 if (!defined('_PS_VERSION_')) {
@@ -52,5 +53,47 @@ class Keycloak_connector_demo extends \Module
         /** @var \Symfony\Component\Routing\RouterInterface $router */
         $router = $container->get('router');
         Tools::redirectAdmin($router->generate('keycloak_connector_configuration'));
+    }
+
+    /**
+     * @return bool
+     */
+    public function install()
+    {
+        if (!parent::install()) {
+            return false;
+        }
+
+        // Inject default configuration on install (the value is encrypted in the DB);
+        $cookieKey = null;
+        // On fresh install process _NEW_COOKIE_KEY_ is not available, so we fetch the config directly from the parameters file
+        $phpParametersFilepath = _PS_ROOT_DIR_ . '/app/config/parameters.php';
+        if (file_exists($phpParametersFilepath)) {
+            $config = require $phpParametersFilepath;
+            if (!empty($config['parameters']['new_cookie_key'])) {
+                $cookieKey = $config['parameters']['new_cookie_key'];
+            }
+        }
+
+        if (!empty($cookieKey)) {
+            $encryption = new PhpEncryption($cookieKey);
+
+            return Configuration::updateValue(ConfigurationDataConfiguration::REALM_ENDPOINT, $encryption->encrypt('http://localhost:8003/realms/prestashop'))
+                && Configuration::updateValue(ConfigurationDataConfiguration::ALLOWED_ISSUERS, $encryption->encrypt('http://localhost:8003/realms/prestashop'));
+        }
+
+        return true;
+    }
+
+    public function uninstall()
+    {
+        if (!parent::uninstall()) {
+            return false;
+        }
+
+        // Delete configuration if present
+        Configuration::deleteByName(ConfigurationDataConfiguration::REALM_ENDPOINT);
+
+        return true;
     }
 }

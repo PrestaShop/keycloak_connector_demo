@@ -1,0 +1,26 @@
+version: '2.1'
+
+volumes:
+  db-data:
+
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+    command:
+      - start-dev
+      - --import-realm
+    ports:
+      - "8003:8080"
+    volumes:
+      - .docker/keycloak/realm/:/opt/keycloak/data/import/
+    networks:
+      - prestashop-network
+
+# External network for UI tests already created by the prestashop docker, we bridge on this
+# network so that PrestaShop docker can communicate with this Keycloak docker container
+networks:
+  prestashop-network:
+    external: true
