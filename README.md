@@ -14,9 +14,9 @@ A keycloak docker is available in this module, along with a realm containing def
 To start the docker container run this command from the root folder of this module:
 
 ```bash
-docker-composer up
+docker compose up
 # OR if you want keycloak to keep running in background
-docker-composer up -d
+docker compose up -d
 ```
 
 You will then have access to the server administration via `http://localhost:8003` where you will find a realm named `prestashop`
