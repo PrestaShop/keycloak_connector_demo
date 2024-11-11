@@ -19,7 +19,7 @@
     },
     "require-dev": {
         "prestashop/php-dev-tools": "^4.3",
-        "phpstan/phpstan": "^1.9"
+        "phpstan/phpstan": "^2.0"
     },
     "config": {
       "preferred-install": "dist",
