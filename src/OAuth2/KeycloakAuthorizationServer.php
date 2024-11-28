@@ -34,16 +34,14 @@ use Lcobucci\JWT\UnencryptedToken;
 use Lcobucci\JWT\Validation\Constraint;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Lcobucci\JWT\Validation\Validator;
-use PhpEncryption;
 use PrestaShop\Module\KeycloakConnectorDemo\Form\ConfigurationDataConfiguration;
-use PrestaShop\Module\KeycloakConnectorDemo\RequestBuilder;
 use PrestaShop\PrestaShop\Core\ConfigurationInterface;
 use PrestaShop\PrestaShop\Core\Security\OAuth2\AuthorisationServerInterface;
 use PrestaShop\PrestaShop\Core\Security\OAuth2\JwtTokenUser;
-use Psr\Http\Client\ClientExceptionInterface;
-use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class KeycloakAuthorizationServer implements AuthorisationServerInterface
 {
@@ -64,21 +62,22 @@ class KeycloakAuthorizationServer implements AuthorisationServerInterface
     private array $parsedTokens = [];
 
     public function __construct(
-        private readonly ClientInterface $client,
+        private readonly HttpClientInterface $client,
         private readonly ConfigurationInterface $configuration,
-        private readonly PhpEncryption $phpEncryption,
-        private readonly RequestBuilder $requestBuilder,
+        private readonly \PhpEncryption $phpEncryption,
         private readonly LoggerInterface $logger,
     ) {
     }
 
     public function isTokenValid(Request $request): bool
     {
+        // Parses the JWT Token and check if it's valid
         $token = $this->getTokenFromRequest($request);
         if ($token === null) {
             return false;
         }
 
+        // Fetch the list of allowed issuers from the configuration
         $allowedIssuers = $this->getKeycloakAllowedIssuers();
         if (empty($allowedIssuers)) {
             $this->logger->debug('KeycloakAuthorizationServer: no allowed issuers defined');
@@ -86,6 +85,7 @@ class KeycloakAuthorizationServer implements AuthorisationServerInterface
             return false;
         }
 
+        // If the Token issuer matches one of the allowed ones
         $tokenIssuerAllowed = false;
         foreach ($allowedIssuers as $allowedIssuer) {
             if ($token->hasBeenIssuedBy($allowedIssuer)) {
@@ -100,6 +100,7 @@ class KeycloakAuthorizationServer implements AuthorisationServerInterface
             return false;
         }
 
+        // Fetch the URL realm from the configuration
         $certsUrl = $this->getKeycloakRealmUrl();
         if (empty($certsUrl)) {
             $this->logger->debug('KeycloakAuthorizationServer: no certs URL detected');
@@ -107,6 +108,7 @@ class KeycloakAuthorizationServer implements AuthorisationServerInterface
             return false;
         }
 
+        // Download the certificates from the authorization server
         $certs = $this->getServerCertificates($certsUrl);
         if ($certs === null) {
             return false;
@@ -117,9 +119,20 @@ class KeycloakAuthorizationServer implements AuthorisationServerInterface
             return false;
         }
 
+        // Check if the JWT token was correctly signed based on the public certificate
         return $this->getValidator()->validate($token, ...$this->getValidationConstraints($certificate));
     }
 
+    /**
+     * Parses the JWT token from the request, it should contain these claims
+     *   - clientId: The used client ID to get the access token
+     *   - scope: a list of scope separated by spaces
+     *   - iss: the issuer that granted the access token
+     *
+     * @param Request $request
+     *
+     * @return JwtTokenUser|null
+     */
     public function getJwtTokenUser(Request $request): ?JwtTokenUser
     {
         /** @var UnencryptedToken|null $token */
@@ -153,9 +166,8 @@ class KeycloakAuthorizationServer implements AuthorisationServerInterface
     private function getServerCertificates(string $certsUrl): ?array
     {
         try {
-            $request = $this->requestBuilder->getCertsRequest($certsUrl);
-            $response = $this->client->sendRequest($request);
-        } catch (ClientExceptionInterface $e) {
+            $response = $this->client->request('GET', $certsUrl . '/protocol/openid-connect/certs');
+        } catch (TransportExceptionInterface $e) {
             $this->logger->debug('KeycloakAuthorizationServer: get server certificates failed: ' . $e->getMessage());
 
             return null;
@@ -167,9 +179,9 @@ class KeycloakAuthorizationServer implements AuthorisationServerInterface
             return null;
         }
 
-        $json = json_decode($response->getBody()->getContents(), true);
+        $json = $response->toArray();
         if (!is_array($json) || !isset($json['keys'])) {
-            $this->logger->debug('KeycloakAuthorizationServer: server certificates invalid JSON format: ' . $response->getBody()->getContents());
+            $this->logger->debug('KeycloakAuthorizationServer: server certificates invalid JSON format: ' . $response->getContent());
 
             return null;
         }

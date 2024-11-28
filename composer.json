@@ -18,7 +18,8 @@
         }
     },
     "require-dev": {
-        "prestashop/php-dev-tools": "^4.3",
+        "prestashop/php-dev-tools": "^5",
+        "friendsofphp/php-cs-fixer": "^3",
         "phpstan/phpstan": "^1.9"
     },
     "config": {

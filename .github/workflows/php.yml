@@ -15,6 +15,12 @@ jobs:
       - name: PHP syntax checker 8.2
         uses: prestashop/github-action-php-lint/8.2@master
 
+      - name: PHP syntax checker 8.3
+        uses: prestashop/github-action-php-lint/8.3@master
+
+      - name: PHP syntax checker 8.4
+        uses: prestashop/github-action-php-lint/8.4@master
+
   # Check the PHP code follow the coding standards
   php-cs-fixer:
     name: PHP-CS-Fixer
@@ -46,12 +52,15 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        presta-versions: ['nightly']
+        presta-version: [ 'nightly', '9.0.x' ]
+        # The 8.4 compatibility is not available yet, this should be uncommented whe the dockers are ready
+        # php-version: [ '8.1', '8.2', '8.3', '8.4' ]
+        php-version: [ '8.1', '8.2', '8.3' ]
     steps:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.1'
+          php-version: ${{ matrix.php-version }}
 
       - name: Checkout
         uses: actions/checkout@v2.0.0
@@ -73,5 +82,5 @@ jobs:
       - run: composer install
 
       # Docker images prestashop/prestashop may be used, even if the shop remains uninstalled
-      - name: Execute PHPStan on PrestaShop (Tag ${{ matrix.presta-versions }})
-        run: ./tests/phpstan.sh ${{ matrix.presta-versions }}
+      - name: Execute PHPStan on PrestaShop (Tag ${{ matrix.presta-version }}-${{ matrix.php-version }})
+        run: ./tests/phpstan.sh ${{ matrix.presta-version }} ${{ matrix.php-version }}
