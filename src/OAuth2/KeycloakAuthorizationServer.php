@@ -34,16 +34,14 @@ use Lcobucci\JWT\UnencryptedToken;
 use Lcobucci\JWT\Validation\Constraint;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Lcobucci\JWT\Validation\Validator;
-use PhpEncryption;
 use PrestaShop\Module\KeycloakConnectorDemo\Form\ConfigurationDataConfiguration;
-use PrestaShop\Module\KeycloakConnectorDemo\RequestBuilder;
 use PrestaShop\PrestaShop\Core\ConfigurationInterface;
 use PrestaShop\PrestaShop\Core\Security\OAuth2\AuthorisationServerInterface;
 use PrestaShop\PrestaShop\Core\Security\OAuth2\JwtTokenUser;
-use Psr\Http\Client\ClientExceptionInterface;
-use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class KeycloakAuthorizationServer implements AuthorisationServerInterface
 {
@@ -64,10 +62,9 @@ class KeycloakAuthorizationServer implements AuthorisationServerInterface
     private array $parsedTokens = [];
 
     public function __construct(
-        private readonly ClientInterface $client,
+        private readonly HttpClientInterface $client,
         private readonly ConfigurationInterface $configuration,
-        private readonly PhpEncryption $phpEncryption,
-        private readonly RequestBuilder $requestBuilder,
+        private readonly \PhpEncryption $phpEncryption,
         private readonly LoggerInterface $logger,
     ) {
     }
@@ -153,9 +150,8 @@ class KeycloakAuthorizationServer implements AuthorisationServerInterface
     private function getServerCertificates(string $certsUrl): ?array
     {
         try {
-            $request = $this->requestBuilder->getCertsRequest($certsUrl);
-            $response = $this->client->sendRequest($request);
-        } catch (ClientExceptionInterface $e) {
+            $response = $this->client->request('GET', $certsUrl . '/protocol/openid-connect/certs');
+        } catch (TransportExceptionInterface $e) {
             $this->logger->debug('KeycloakAuthorizationServer: get server certificates failed: ' . $e->getMessage());
 
             return null;
@@ -167,9 +163,9 @@ class KeycloakAuthorizationServer implements AuthorisationServerInterface
             return null;
         }
 
-        $json = json_decode($response->getBody()->getContents(), true);
+        $json = $response->toArray();
         if (!is_array($json) || !isset($json['keys'])) {
-            $this->logger->debug('KeycloakAuthorizationServer: server certificates invalid JSON format: ' . $response->getBody()->getContents());
+            $this->logger->debug('KeycloakAuthorizationServer: server certificates invalid JSON format: ' . $response->getContent());
 
             return null;
         }
