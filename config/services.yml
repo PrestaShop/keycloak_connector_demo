@@ -11,22 +11,12 @@ services:
     arguments:
       - !php/const _NEW_COOKIE_KEY_
 
-  prestashop.module.keycloak_connector_demo.client:
-    class: GuzzleHttp\Client
-
-  PrestaShop\Module\KeycloakConnectorDemo\RequestBuilder:
-    class: PrestaShop\Module\KeycloakConnectorDemo\RequestBuilder
-    arguments:
-      - '@prestashop.adapter.legacy.configuration'
-      - '@prestashop.module.keycloak_connector_demo.php_encrypt'
-
   PrestaShop\Module\KeycloakConnectorDemo\Form\ConfigurationDataConfiguration:
+    autowire: true
     class: PrestaShop\Module\KeycloakConnectorDemo\Form\ConfigurationDataConfiguration
     arguments:
       - '@prestashop.adapter.legacy.configuration'
       - '@prestashop.module.keycloak_connector_demo.php_encrypt'
-      - '@PrestaShop\Module\KeycloakConnectorDemo\RequestBuilder'
-      - '@prestashop.module.keycloak_connector_demo.client'
 
   PrestaShop\Module\KeycloakConnectorDemo\Form\ConfigurationDataProvider:
     class: PrestaShop\Module\KeycloakConnectorDemo\Form\ConfigurationDataProvider
@@ -52,5 +42,4 @@ services:
     autoconfigure: true
     autowire: true
     arguments:
-      $client: '@prestashop.module.keycloak_connector_demo.client'
       $phpEncryption: '@prestashop.module.keycloak_connector_demo.php_encrypt'

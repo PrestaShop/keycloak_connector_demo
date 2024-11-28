@@ -22,43 +22,24 @@ declare(strict_types=1);
 
 namespace PrestaShop\Module\KeycloakConnectorDemo\Form;
 
-use PhpEncryption;
-use PrestaShop\Module\KeycloakConnectorDemo\RequestBuilder;
 use PrestaShop\PrestaShop\Core\Configuration\DataConfigurationInterface;
 use PrestaShop\PrestaShop\Core\ConfigurationInterface;
-use Psr\Http\Client\ClientExceptionInterface;
-use Psr\Http\Client\ClientInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final class ConfigurationDataConfiguration implements DataConfigurationInterface
 {
     public const REALM_ENDPOINT = 'KEYCLOAK_REALM_ENDPOINT';
     public const ALLOWED_ISSUERS = 'KEYCLOAK_ALLOWED_ISSUERS';
 
-    /** @var ConfigurationInterface */
-    private $configuration;
-
-    /** @var PhpEncryption */
-    private $encryption;
-
-    /** @var RequestBuilder */
-    private $requestBuilder;
-
-    /** @var ClientInterface */
-    private $client;
-
     /** @var array<string|array<string, string|string[]>> */
     private $errors = [];
 
     public function __construct(
-        ConfigurationInterface $configuration,
-        PhpEncryption $encryption,
-        RequestBuilder $requestBuilder,
-        ClientInterface $client
+        private ConfigurationInterface $configuration,
+        private \PhpEncryption $encryption,
+        private HttpClientInterface $client
     ) {
-        $this->configuration = $configuration;
-        $this->encryption = $encryption;
-        $this->requestBuilder = $requestBuilder;
-        $this->client = $client;
     }
 
     /**
@@ -121,15 +102,13 @@ final class ConfigurationDataConfiguration implements DataConfigurationInterface
     public function validateConfiguration(array $configuration): bool
     {
         try {
-            $response = $this->client->sendRequest(
-                $this->requestBuilder->getCertsRequest($configuration[static::REALM_ENDPOINT])
-            );
+            $response = $this->client->request('GET', $configuration[static::REALM_ENDPOINT] . '/protocol/openid-connect/certs');
             if ($response->getStatusCode() === 200) {
                 return true;
             }
 
-            $errorDetails = $response->getReasonPhrase();
-        } catch (ClientExceptionInterface $exception) {
+            $errorDetails = $response->getContent(false);
+        } catch (TransportExceptionInterface $exception) {
             $errorDetails = $exception->getMessage();
         }
 
