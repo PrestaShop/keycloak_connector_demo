@@ -71,11 +71,13 @@ class KeycloakAuthorizationServer implements AuthorisationServerInterface
 
     public function isTokenValid(Request $request): bool
     {
+        // Parses the JWT Token and check if it's valid
         $token = $this->getTokenFromRequest($request);
         if ($token === null) {
             return false;
         }
 
+        // Fetch the list of allowed issuers from the configuration
         $allowedIssuers = $this->getKeycloakAllowedIssuers();
         if (empty($allowedIssuers)) {
             $this->logger->debug('KeycloakAuthorizationServer: no allowed issuers defined');
@@ -83,6 +85,7 @@ class KeycloakAuthorizationServer implements AuthorisationServerInterface
             return false;
         }
 
+        // If the Token issuer matches one of the allowed ones
         $tokenIssuerAllowed = false;
         foreach ($allowedIssuers as $allowedIssuer) {
             if ($token->hasBeenIssuedBy($allowedIssuer)) {
@@ -97,6 +100,7 @@ class KeycloakAuthorizationServer implements AuthorisationServerInterface
             return false;
         }
 
+        // Fetch the URL realm from the configuration
         $certsUrl = $this->getKeycloakRealmUrl();
         if (empty($certsUrl)) {
             $this->logger->debug('KeycloakAuthorizationServer: no certs URL detected');
@@ -104,6 +108,7 @@ class KeycloakAuthorizationServer implements AuthorisationServerInterface
             return false;
         }
 
+        // Download the certificates from the authorization server
         $certs = $this->getServerCertificates($certsUrl);
         if ($certs === null) {
             return false;
@@ -114,9 +119,20 @@ class KeycloakAuthorizationServer implements AuthorisationServerInterface
             return false;
         }
 
+        // Check if the JWT token was correctly signed based on the public certificate
         return $this->getValidator()->validate($token, ...$this->getValidationConstraints($certificate));
     }
 
+    /**
+     * Parses the JWT token from the request, it should contain these claims
+     *   - clientId: The used client ID to get the access token
+     *   - scope: a list of scope separated by spaces
+     *   - iss: the issuer that granted the access token
+     *
+     * @param Request $request
+     *
+     * @return JwtTokenUser|null
+     */
     public function getJwtTokenUser(Request $request): ?JwtTokenUser
     {
         /** @var UnencryptedToken|null $token */
